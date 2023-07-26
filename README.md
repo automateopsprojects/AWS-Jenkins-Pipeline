@@ -27,7 +27,7 @@ Click on create bucket
 ![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/8e229e8e-0595-4e8b-bf38-b339130401d9)
 
 
-**STEP2:CREATE IAM POLICY FOR JENKINS SERVER TO ACCESS THE S3 BUCKET**
+**STEP 2:CREATE IAM POLICY FOR JENKINS SERVER TO ACCESS THE S3 BUCKET**
 
 Sign in to the AWS Management Console.
 
@@ -53,7 +53,7 @@ Provide a name and description for the policy. Click on the "Create policy" butt
 
 ![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/d4ac83a6-b0b3-4c4a-b2ef-e8f0e339be95)
 
-**STEP3:CREATE THE IAM ROLE FOR THE JENKINS EC2 INSTANCE AND ATTACH THE POLICY WHICH WE HAVE CREATED IN THE PREVIOUS STEP**
+**STEP 3:CREATE THE IAM ROLE FOR THE JENKINS EC2 INSTANCE AND ATTACH THE POLICY WHICH WE HAVE CREATED IN THE PREVIOUS STEP**
 
 1. Sign in to the AWS Management Console.
 
@@ -113,3 +113,39 @@ Note: The above policy allows CodeDeploy to describe tags for all EC2 resources 
 
 12. Click on the "Create role" button.
 
+**STEP 5: create an IAM role and instance profile for the EC2 instances of CodeDeploy, with permissions to write files to the S3 bucket and create deployments in CodeDeploy, you can follow these steps:**
+
+1. Sign in to the AWS Management Console.
+
+2. Go to the IAM (Identity and Access Management) service.
+
+3. In the left navigation pane, click on "Roles."
+
+4. Click on the "Create role" button.
+
+5. Select "AWS service" as the trusted entity, and then choose "EC2" from the list of services.
+
+6. Under "Select your use case," choose "Allows EC2 instances to call AWS services on your behalf."
+
+7. Click on the "Next: Permissions" button.
+
+8. In the "Attach permissions policies" step, you can either choose an existing policy that provides the required permissions for 
+   writing files to S3 and creating CodeDeploy deployments or creating a custom policy.
+
+   * To choose an existing policy, search for and select the policy that allows the required permissions. For example, you can select 
+     "AmazonS3FullAccess" to grant full access to S3 or "AWSCodeDeployFullAccess" to grant full access to CodeDeploy.
+
+   * To create a custom policy, click on the "Create Policy" button, and in the policy editor, define the permissions needed.Below link 
+     is an example of a policy that allows the required permissions:
+
+     https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/blob/main/codedeployinstanceroletos3-policy
+
+Replace "your-s3-bucket-name" with the actual name of your S3 bucket, and "region" and "account-id" with the appropriate values for your AWS account in the above link
+
+9. Click on the "Next: Tags" button if you want to add any tags to the role (optional).
+
+10. Click on the "Next: Review" button.
+
+11. Provide a name and description for the role, e.g., "CodeDeployRole."
+
+12. Click on the "Create role" button.
