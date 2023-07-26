@@ -149,3 +149,25 @@ Replace "your-s3-bucket-name" with the actual name of your S3 bucket, and "regio
 11. Provide a name and description for the role, e.g., "CodeDeployRole."
 
 12. Click on the "Create role" button.
+
+**STEP 6:create the CodeBuildRole IAM role manually through the AWS Management Console, follow these steps:**
+
+1. Sign in to the AWS Management Console.
+2. Open the IAM console.
+3. In the left navigation pane, choose "Roles" and then click on the "Create role" button.
+4. In the "Select type of trusted entity" section, choose "AWS service."
+5. In the "Choose the service that will use this role" section, select "CodeBuild" from the list of services.
+6. Click "Next: Permissions."
+7. In the "Attach permissions policies" step, you can either choose from existing policies or create a custom policy for the 
+   CodeBuildRole. For simplicity, you can use the following LINK document:
+
+   https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/blob/main/CodeBuildRole%20IAM%20role-Policy
+
+Replace "your-s3-bucket-name" in the policy with the actual name of your S3 bucket or the appropriate wildcard pattern for the resources you want to grant access to.
+
+8. Click "Next: Tags" (you can optionally add tags for the IAM role here).
+9. Click "Next: Review."
+10. Provide a name for the role (e.g., "CodeBuildRole") and an optional description.
+11. Click "Create role" to create the IAM role.
+
+
