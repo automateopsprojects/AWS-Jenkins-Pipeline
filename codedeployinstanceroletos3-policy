@@ -1,0 +1,16 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject",
+                "codedeploy:CreateDeployment"
+            ],
+            "Resource": [
+                "arn:aws:s3:::your-s3-code-github-artifact-codebuild/*",
+                "arn:aws:codedeploy:region:account-id:deploymentgroup:*"
+            ]
+        }
+    ]
+}
