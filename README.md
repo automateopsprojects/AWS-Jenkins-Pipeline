@@ -1,295 +1,123 @@
 # AWS-Jenkins-Pipeline
 
-**Setting up a CI/CD pipeline by integrating Jenkins with AWS CodeBuild and AWS CodeDeploy**
-
-Jenkins open-source automation server is used to deploy AWS CodeBuild artifacts with AWS CodeDeploy, creating a functioning CI/CD pipeline. When properly implemented, the CI/CD pipeline is triggered by code changes pushed to your GitHub repo, automatically fed into CodeBuild, then the output is deployed on CodeDeploy.
-
+## Setting up a CI/CD pipeline by integrating Jenkins with AWS CodeBuild and AWS CodeDeploy
+ 
+ 
+ 
+ Jenkins open-source automation server is used to deploy AWS CodeBuild artifacts with AWS CodeDeploy, creating a functioning CI/CD pipeline. 
+ When properly implemented, the CI/CD pipeline is triggered by code changes pushed to your GitHub repo, automatically fed into CodeBuild, then the output is deployed on CodeDeploy.
+  
+ 
 The functioning pipeline creates a fully managed build service that compiles your source code. It then produces code artifacts that can be used by CodeDeploy to deploy to your production environment automatically.
 
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/9ba041cc-663c-4d5b-a878-1f3f3116fc85)
 
+![image](https://user-images.githubusercontent.com/48589838/89983289-e5fc2900-dc94-11ea-9258-685375cad1dd.png)
 
-**STEP 1:**
-**CREATE THE S3 BUCKET TO STORE THE CODE FROM GITHUB AND STORES ARTIFACTS FROM CODE BUILD**
 
-Click on create bucket
 
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/4525d9fb-0868-4b3c-b6e9-d3b363a06ee2)
+### Walkthrough 
 
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/f816eeeb-11dd-497f-bad8-692521403f90)
+Creating resources to build the infrastructure, including the Jenkins server, CodeBuild project, and CodeDeploy application.
 
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/f63e5dda-7af0-4010-8cb2-4b3542b0df95)
+Accessing and unlocking the Jenkins server.
 
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/2ded46d8-ae90-40a4-9663-22e6572cb7fa)
+Creating a project and configuring the CodeDeploy Jenkins plugin.
 
-Click on create bucket 
+Testing the whole CI/CD pipeline.
 
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/8e229e8e-0595-4e8b-bf38-b339130401d9)
+### Create the resources
+how to launch an AWS CloudFormation template, a tool that creates the following resources:
 
+Amazon S3 bucket—Stores the GitHub repository files and the CodeBuild artifact application file that CodeDeploy uses.
+IAM S3 bucket policy—Allows the Jenkins server access to the S3 bucket.
+JenkinsRole—An IAM role and instance profile for the Amazon EC2 instance for use as a Jenkins server. This role allows Jenkins on the EC2 instance to access the S3 bucket to write files and access to create CodeDeploy deployments.
+CodeDeploy application and CodeDeploy deployment group.
+CodeDeploy service role—An IAM role to enable CodeDeploy to read the tags applied to the instances or the EC2 Auto Scaling group names associated with the instances.
+CodeDeployRole—An IAM role and instance profile for the EC2 instances of CodeDeploy. This role has permissions to write files to the S3 bucket created by this template and to create deployments in CodeDeploy.
+CodeBuildRole—An IAM role to be used by CodeBuild to access the S3 bucket and create the build projects.
+Jenkins server—An EC2 instance running Jenkins.
+CodeBuild project—This is configured with the S3 bucket and S3 artifact.
+Auto Scaling group—Contains EC2 instances running Apache and the CodeDeploy agent fronted by an Elastic Load Balancer.
+Auto Scaling launch configurations—For use by the Auto Scaling group.
+Security groups—For the Jenkins server, the load balancer, and the CodeDeploy EC2 instance
 
-**STEP 2:CREATE IAM POLICY FOR JENKINS SERVER TO ACCESS THE S3 BUCKET**
+![image](https://user-images.githubusercontent.com/48589838/89985330-87d14500-dc98-11ea-9964-c1211d0c8a03.png)
 
-Sign in to the AWS Management Console.
+![image](https://user-images.githubusercontent.com/48589838/89985319-83a52780-dc98-11ea-8442-3e8e7eb3e403.png)
 
-Go to the IAM (Identity and Access Management) service. In the left navigation pane, click on "Policies."
 
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/c636b8d6-4ac9-47fc-ade4-a8b1b3eb4de9)
+### Access and unlock your Jenkins server
 
-Click on the "Create policy" button. Select the "JSON" tab to define the policy using JSON format.Replace the JSON with the following policy that allows the EC2 instance to access the specified S3 bucket:
+Copy the JenkinsServerDNSName value from the Outputs tab of the CloudFormation stack, and paste it into your browser.
 
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/e0e13b6d-97b9-40e8-bba2-d82705879bb7)
+To unlock the Jenkins server, SSH to the server using the IP address and key pair, following the instructions from Unlocking Jenkins.
 
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/d1e034f0-4399-401d-9a48-748b6f6c9de1)
+Use the root user to Cat the log file (/var/log/jenkins/jenkins.log) and copy the automatically generated alphanumeric password (between the two sets of asterisks). Then, use the password to unlock your Jenkins server, as shown in the following screenshots.
 
-link for the script 
+![image](https://user-images.githubusercontent.com/48589838/89985442-ba7b3d80-dc98-11ea-9cb4-9014339ba6e3.png)
 
-https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/blob/main/s3-jenkins-policy
+![image](https://user-images.githubusercontent.com/48589838/89985456-be0ec480-dc98-11ea-9f0a-32333a15e9ce.png)
 
-Click on next which will take you to the review section
+![image](https://user-images.githubusercontent.com/48589838/89985477-c666ff80-dc98-11ea-8313-dcdec60d39f8.png)
 
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/452ce744-a08e-488f-acf1-9f685b45eb4e)
+![image](https://user-images.githubusercontent.com/48589838/89985469-c23ae200-dc98-11ea-9243-9c8994fa4f28.png)
 
-Provide a name and description for the policy. Click on the "Create policy" button.
 
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/d4ac83a6-b0b3-4c4a-b2ef-e8f0e339be95)
 
-**STEP 3:CREATE THE IAM ROLE FOR THE JENKINS EC2 INSTANCE AND ATTACH THE POLICY WHICH WE HAVE CREATED IN THE PREVIOUS STEP**
+### Create a project and configure the CodeDeploy Jenkins plugin
 
-1. Sign in to the AWS Management Console.
+![image](https://user-images.githubusercontent.com/48589838/89985612-fadabb80-dc98-11ea-84cf-c2add128ffc0.png)
+![image](https://user-images.githubusercontent.com/48589838/89985621-ff06d900-dc98-11ea-9fee-f80963c8291f.png)
+![image](https://user-images.githubusercontent.com/48589838/89985634-05955080-dc99-11ea-9187-db635bdeca9a.png)
+![image](https://user-images.githubusercontent.com/48589838/89985688-15149980-dc99-11ea-8810-8e7a43c1e4ff.png)
+![image](https://user-images.githubusercontent.com/48589838/89985702-1c3ba780-dc99-11ea-90c3-220b906d91a7.png)
+![image](https://user-images.githubusercontent.com/48589838/89985709-1fcf2e80-dc99-11ea-8caf-4962b2721915.png)
+![image](https://user-images.githubusercontent.com/48589838/89985726-25c50f80-dc99-11ea-9955-68b7897cb6db.png)
+![image](https://user-images.githubusercontent.com/48589838/89985715-22ca1f00-dc99-11ea-9fe5-4a1b0c79e65c.png)
+![image](https://user-images.githubusercontent.com/48589838/89985694-180f8a00-dc99-11ea-8a3c-fa211b9ea87e.png)
+![image](https://user-images.githubusercontent.com/48589838/89985744-28c00000-dc99-11ea-8e62-e3d18baa5152.png)
+![image](https://user-images.githubusercontent.com/48589838/89985756-2c538700-dc99-11ea-9318-a0cb7a6aed0a.png)
+![image](https://user-images.githubusercontent.com/48589838/89985781-31b0d180-dc99-11ea-969e-407595b211ad.png)
+![image](https://user-images.githubusercontent.com/48589838/89985795-35dcef00-dc99-11ea-816f-2ce6a2bacece.png)
+![image](https://user-images.githubusercontent.com/48589838/89985806-38d7df80-dc99-11ea-8cd8-b003ccac1c45.png)
+![image](https://user-images.githubusercontent.com/48589838/89985848-45f4ce80-dc99-11ea-9a47-c8256c083864.png)
+![image](https://user-images.githubusercontent.com/48589838/89985864-4a20ec00-dc99-11ea-8dbf-fcecdedec7e6.png)
+![image](https://user-images.githubusercontent.com/48589838/89985875-4db47300-dc99-11ea-8288-fb7e30a5cb11.png)
 
-2. Go to the IAM (Identity and Access Management) service.
 
-3. In the left navigation pane, click on "Roles."
+### Testing the whole CI/CD pipeline
 
-4. Click on the "Create role" button.
+To test the whole solution, put an application on your GitHub repository.
 
-5. Select "EC2" as the trusted entity, then click on the "Next: Permissions" button.
+The following screenshot shows an application tree containing the application source files, including text and binary files, executables, and packages:
 
-6. In the "Attach permissions policies" step, search for the policy you created (by the name you provided) and select it.
+![image](https://user-images.githubusercontent.com/48589838/89986084-a71ca200-dc99-11ea-9021-097d82084171.png)
 
-7. Click on the "Next: Tags" button if you want to add any tags to the role (optional).
+In this example, the application files are the templates directory, test_app.py file, and web.py file.
 
-8. Click on the "Next: Review" button.
+The appspec.yml file is the main application specification file telling CodeDeploy how to deploy your application. Jenkins uses the AppSpec file to manage each deployment as a series of lifecycle event “hooks”, as defined in the file. For information about how to create a well-formed AppSpec file, see AWS CodeDeploy AppSpec File Reference.
 
-9. Provide a name and description for the role.
+The buildspec.yml file is a collection of build commands and related settings, in YAML format, that CodeBuild uses to run a build. You can include a build spec as part of the source code, or you can define a build spec when you create a build project. For more information, see How AWS CodeBuild Works.
 
-10. Click on the "Create role" button.
+The scripts folder contains the scripts that you would like to run during the CodeDeploy LifecycleHooks execution with respect to your application requirements. For more information, see Plan a Revision for AWS CodeDeploy.
 
+To test this solution, perform the following steps:
 
-**STEP 4: create an IAM role for CodeDeploy service to enable it to read the tags applied to the instances, you can follow these steps:**
+Unzip the application files and send them to your GitHub repository, run the following git commands from the path where you placed your sample application:
 
-1. Sign in to the AWS Management Console.
+$ git add -A
 
-2. Go to the IAM (Identity and Access Management) service.
+$ git commit -m 'Your first application'
 
-3. In the left navigation pane, click on "Roles."
+$ git push
+On the Jenkins server dashboard, wait for two minutes until the previously set project trigger starts working. After the trigger starts working, you should see a new build taking place.
 
-4. Click on the "Create role" button.
+![image](https://user-images.githubusercontent.com/48589838/89986214-d92e0400-dc99-11ea-84cb-9ff3e830a1b8.png)
 
-5. Select "AWS service" as the trusted entity, and then choose "CodeDeploy" from the list of services.
+In the Jenkins server Console Output page, check the build events and review the steps performed by each Jenkins plugin. You can also review the CodeDeploy deployment in detail, as shown in the following screenshot:
 
-6. Under "Select your use case," choose "CodeDeploy - Amazon EC2" as the use case.
+![image](https://user-images.githubusercontent.com/48589838/89986227-dd5a2180-dc99-11ea-95a5-15938ac49df1.png)
 
-7. Click on the "Next: Permissions" button.
+On completion, Jenkins should report that you have successfully deployed a web application. You can also use your ELBDNSName value to confirm that the deployed application is running successfully.
 
-8. In the "Attach permissions policies" step, you can either choose an existing policy that provides the required permissions for 
-   reading tags or creating a custom policy.
-   
-   * To choose an existing policy, search for and select the policy that allows CodeDeploy to read EC2 instance tags. For example, 
-   "AmazonEC2ReadOnlyAccess" provides read-only access to EC2 resources, including tags.
-
-   * To create a custom policy, click on the "Create Policy" button, and in the policy editor, define the permissions needed for 
-     CodeDeploy to read the EC2 instance tags. The below link is an example of a policy that allows CodeDeploy to read tags:
-
-     https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/blob/main/CodeDeployservicerolereadtags-policy
-
-Note: The above policy allows CodeDeploy to describe tags for all EC2 resources in the AWS account. You can further refine the policy to limit the resources that CodeDeploy can access.
-
-9. Click on the "Next: Tags" button if you want to add any tags to the role (optional).
-
-10. Click on the "Next: Review" button.
-
-11. Provide a name and description of the role.
-
-12. Click on the "Create role" button.
-
-**STEP 5: create an IAM role and instance profile for the EC2 instances of CodeDeploy, with permissions to write files to the S3 bucket and create deployments in CodeDeploy, you can follow these steps:**
-
-1. Sign in to the AWS Management Console.
-
-2. Go to the IAM (Identity and Access Management) service.
-
-3. In the left navigation pane, click on "Roles."
-
-4. Click on the "Create role" button.
-
-5. Select "AWS service" as the trusted entity, and then choose "EC2" from the list of services.
-
-6. Under "Select your use case," choose "Allows EC2 instances to call AWS services on your behalf."
-
-7. Click on the "Next: Permissions" button.
-
-8. In the "Attach permissions policies" step, you can either choose an existing policy that provides the required permissions for 
-   writing files to S3 and creating CodeDeploy deployments or creating a custom policy.
-
-   * To choose an existing policy, search for and select the policy that allows the required permissions. For example, you can select 
-     "AmazonS3FullAccess" to grant full access to S3 or "AWSCodeDeployFullAccess" to grant full access to CodeDeploy.
-
-   * To create a custom policy, click on the "Create Policy" button, and in the policy editor, define the permissions needed.Below link 
-     is an example of a policy that allows the required permissions:
-
-     https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/blob/main/codedeployinstanceroletos3-policy
-
-Replace "your-s3-bucket-name" with the actual name of your S3 bucket, and "region" and "account-id" with the appropriate values for your AWS account in the above link
-
-9. Click on the "Next: Tags" button if you want to add any tags to the role (optional).
-
-10. Click on the "Next: Review" button.
-
-11. Provide a name and description for the role, e.g., "CodeDeployRole."
-
-12. Click on the "Create role" button.
-
-**STEP 6:create the CodeBuildRole IAM role manually through the AWS Management Console, follow these steps:**
-
-1. Sign in to the AWS Management Console.
-2. Open the IAM console.
-3. In the left navigation pane, choose "Roles" and then click on the "Create role" button.
-4. In the "Select type of trusted entity" section, choose "AWS service."
-5. In the "Choose the service that will use this role" section, select "CodeBuild" from the list of services.
-6. Click "Next: Permissions."
-7. In the "Attach permissions policies" step, you can either choose from existing policies or create a custom policy for the 
-   CodeBuildRole. For simplicity, you can use the following LINK document:
-
-   https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/blob/main/CodeBuildRole%20IAM%20role-Policy
-
-Replace "your-s3-bucket-name" in the policy with the actual name of your S3 bucket or the appropriate wildcard pattern for the resources you want to grant access to.
-
-8. Click "Next: Tags" (you can optionally add tags for the IAM role here).
-9. Click "Next: Review."
-10. Provide a name for the role (e.g., "CodeBuildRole") and an optional description.
-11. Click "Create role" to create the IAM role.
-
-**Step 7: Create the Jenkins by following the below steps** 
-
-Write a terraform script to create the Jenkins server, For that get inside the Jenkins directory and alter the AWS access_key, Secret_key, ami-ID, region, and keypair in Jenkins.tf file Alter the VPC id in jenkins_sg.tf file
-
-Now execute the terraform lifecycle commands as follows:
-
-Terraform init
-Terraform fmt
-Terraform validate
-Terraform plan
-Terraform apply
-
-After creating select the instance go to the actions -> Security -> Modify IAM role attach the Jenkins IAM role which we have created earlier
-
-**Step 8: Create autoscaling groups to deploy the application**
-
-create an Auto Scaling group with EC2 instances running Apache and the CodeDeploy agent fronted by an Elastic Load Balancer, along with the associated launch configurations and security groups, you can use the AWS Management Console or Terraform. Here, I'll provide the steps to do it manually using the AWS Management Console:
-
-Create an Auto Scaling Launch Configuration:
-
-1. Sign in to the AWS Management Console.
-2. Go to the EC2 service by searching for "EC2" in the AWS Management Console search bar and selecting "EC2" from the list of services.
-3. In the EC2 console, click on "Launch Configurations" in the left-hand navigation pane.
-4. Click the "Create launch configuration" button.
-5. Choose an Amazon Machine Image (AMI) that includes Apache and the CodeDeploy agent. You can use an existing AMI or create a custom 
-   one with Apache and CodeDeploy pre-installed.
-6. Configure the instance type, security groups, key pair, IAM role, user data (if needed), etc.
-    Click the "Create launch configuration" button.
-
-Create a Load Balancer:
-
-1. In the EC2 console, click on "Load Balancers" in the left-hand navigation pane.
-2. Click the "Create Load Balancer" button.
-3. Choose the load balancer type (e.g., Application Load Balancer or Network Load Balancer).
-4. Configure the load balancer settings, such as listeners, target groups, security groups, etc.
-5. Click the "Next: Configure Security Settings" button (if applicable) and configure SSL certificates (optional).
-6. Click the "Next: Configure Security Groups" button.
-7. Add the necessary security groups to allow traffic to the load balancer. You can create new security groups or use existing ones.
-8. Click the "Next: Configure Routing" button (if applicable) and configure routing rules (optional).
-9. Click the "Next: Register Targets" button and select the instances created from the Auto Scaling group.
-10. Review the settings and Click the "Next: Review" button.
-11. Click the "Create" button.
-
-Create an Auto Scaling Group:
-
-1. In the EC2 console, click on "Auto Scaling Groups" in the left-hand navigation pane.
-2. Click the "Create Auto Scaling group" button.
-3. Choose the launch configuration you created in Step 1.
-4. Configure the group size, scaling policies, load balancer, health checks, etc.
-5. Click the "Next: Configure Tags" button (optional) and add any tags you want to associate with the Auto Scaling group.
-6. Click the "Next: Configure Notifications" button (optional) and configure notification settings (e.g., for scaling events).
-7. Click the "Next: Configure Scaling Policies" button (optional) and configure any additional scaling policies (if needed).
-8. Review the settings and Click the "Next: Review" button.
-9. Click the "Create Auto Scaling group" button.
-
-**Step 9: Crete the Code build in aws**
-
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/0ae540c2-56e2-423a-b030-cd19cd4f77d3)
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/50892828-7d5b-4146-a8a4-183f19c7b95c)
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/63646430-de6a-4c53-9593-589e3ce038d6)
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/40e21133-dab1-4b0c-bf99-458a3441c81d)
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/2818daf4-e312-4b9c-8e51-a2a80e945d78)
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/52ff8cfc-519b-40ba-b51a-61af45f64033)
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/c6a28acc-104d-4b06-b906-46e23efd78c2)
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/50c3ecba-19aa-4471-b5d7-310bb1bb86d5)
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/f0f3d3d5-c50b-4bc4-8534-9eec1bd5d33f)
-
-
-**Step 10: Create the code deploy in aws**
-
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/9d256e6e-5591-4513-bffc-d12cc58d586b)
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/75133753-a812-4647-9bcc-10183c1a7c90)
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/5cdfb7b6-1afc-4efc-9fb5-e7f9b613387a)
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/498979ea-05ab-4765-96ed-99f8abd27e6e)
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/412556b6-b791-4429-91b0-22bec18b12bb)
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/c57a22cd-8608-4078-b231-3ec3a407e2c7)
-![image](https://github.com/automateopsprojects/AWS-Jenkins-Pipeline/assets/120359592/ad62a849-efbc-47fd-8ff3-de4921a29251)
-
-
-**Step11: Jenkins Configuration**
-
-To connect to Jenkins and download the AWS CodeBuild and AWS CodeDeploy plugins, follow these steps:
-
-1. Open your Jenkins web interface in a web browser.
-2. Click on "Jenkins" in the top-left corner to go to the Dashboard.
-3. Click on "Manage Jenkins" from the left-hand sidebar.
-4. Click on "Manage Plugins" from the dropdown menu.
-
->Installing AWS CodeBuild Plugin:
-
-1. In the "Manage Plugins" page, click on the "Available" tab.
-2. In the search bar, type "AWS CodeBuild" and press Enter.
-3. Find the "AWS CodeBuild" plugin in the list and check the checkbox next to it.
-4. Click on the "Install without restart" button to install the plugin.
-
->Installing AWS CodeDeploy Plugin:
-
-1. In the "Manage Plugins" page, click on the "Available" tab.
-2. In the search bar, type "AWS CodeDeploy" and press Enter.
-3. Find the "AWS CodeDeploy" plugin in the list and check the checkbox next to it.
-4. Click on the "Install without restart" button to install the plugin.
-
-> Create a Jenkins job with a Free-style project that uses Git as the SCM, AWS CodeBuild as the build step, and AWS CodeDeploy as the post-build action, follow the steps below:
-
-1. Open your Jenkins web interface in a web browser.
-2. Click on "New Item" on the Jenkins Dashboard.
-3. Enter a name for your project and select "Freestyle project."
-4. Click "OK" to create the project.
-5. In the project configuration page, scroll down to the "Source Code Management" section, and select "Git."
-6. Enter your Git repository URL and configure the credentials if required.
-7. In the "Build" section, click on "Add build step" and select "AWS CodeBuild."
-8. In the "AWS CodeBuild" build step, you need to configure the AWS credentials, AWS Region, and other build settings as per your 
-   requirements. Select the CodeBuild project you want to use for the build.
-9. Click on "Add post-build action" and select "AWS CodeDeploy."
-10. In the "AWS CodeDeploy" post-build action, configure the AWS credentials and AWS Region.
-11. Choose the "CodeDeploy Application Name" and "Deployment Group Name" that you want to use for the deployment.
-12. Save the project configuration.
-
-Build now 
-
-Once you build the application will get to build and store the artifact in an S3 bucket and on EC2 instance
-
-
+![image](https://user-images.githubusercontent.com/48589838/89986033-9409d200-dc99-11ea-883c-37f6a469e02c.png)
