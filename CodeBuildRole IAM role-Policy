@@ -1,25 +1,205 @@
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:GetObject",
-                "s3:GetObjectVersion",
-                "s3:GetBucketVersioning",
-                "s3:ListBucket",
-                "s3:PutObject",
-                "s3:PutObjectAcl"
-            ],
-            "Resource": [
-                "arn:aws:s3:::your-s3-bucket-name/*",    // Replace with your S3 bucket ARN or wildcard pattern
-                "arn:aws:s3:::your-s3-bucket-name"
-            ]
-        },
-        {
-            "Effect": "Allow",
-            "Action": "codebuild:*",
-            "Resource": "*"
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:logs:us-east-1:336721912781:log-group:/aws/codebuild/skillrary",
+        "arn:aws:logs:us-east-1:336721912781:log-group:/aws/codebuild/skillrary:*"
+      ],
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::codepipeline-us-east-1-*"
+      ],
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:GetObjectVersion",
+        "s3:GetBucketAcl",
+        "s3:GetBucketLocation"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::aws-jenkins-code",
+        "arn:aws:s3:::aws-jenkins-code/*"
+      ],
+      "Action": [
+        "s3:PutObject",
+        "s3:GetBucketAcl",
+        "s3:GetBucketLocation"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+      ],
+      "Resource": [
+        "arn:aws:codebuild:us-east-1:336721912781:report-group/skillrary-*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::aws-jenkins-code/aws-jenkins-code",
+        "arn:aws:s3:::aws-jenkins-code/aws-jenkins-code/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::aws-jenkins-code"
+      ],
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetBucketAcl",
+        "s3:GetBucketLocation"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "codebuild:*",
+        "codecommit:GetBranch",
+        "codecommit:GetCommit",
+        "codecommit:GetRepository",
+        "codecommit:ListBranches",
+        "codecommit:ListRepositories",
+        "cloudwatch:GetMetricStatistics",
+        "ec2:DescribeVpcs",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeSubnets",
+        "ecr:DescribeRepositories",
+        "ecr:ListImages",
+        "elasticfilesystem:DescribeFileSystems",
+        "events:DeleteRule",
+        "events:DescribeRule",
+        "events:DisableRule",
+        "events:EnableRule",
+        "events:ListTargetsByRule",
+        "events:ListRuleNamesByTarget",
+        "events:PutRule",
+        "events:PutTargets",
+        "events:RemoveTargets",
+        "logs:GetLogEvents",
+        "s3:GetBucketLocation",
+        "s3:ListAllMyBuckets"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:DeleteLogGroup"
+      ],
+      "Resource": "arn:aws:logs:*:*:log-group:/aws/codebuild/*:log-stream:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ssm:PutParameter"
+      ],
+      "Resource": "arn:aws:ssm:*:*:parameter/CodeBuild/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ssm:StartSession"
+      ],
+      "Resource": "arn:aws:ecs:*:*:task/*/*"
+    },
+    {
+      "Sid": "CodeStarConnectionsReadWriteAccess",
+      "Effect": "Allow",
+      "Action": [
+        "codestar-connections:CreateConnection",
+        "codestar-connections:DeleteConnection",
+        "codestar-connections:UpdateConnectionInstallation",
+        "codestar-connections:TagResource",
+        "codestar-connections:UntagResource",
+        "codestar-connections:ListConnections",
+        "codestar-connections:ListInstallationTargets",
+        "codestar-connections:ListTagsForResource",
+        "codestar-connections:GetConnection",
+        "codestar-connections:GetIndividualAccessToken",
+        "codestar-connections:GetInstallationUrl",
+        "codestar-connections:PassConnection",
+        "codestar-connections:StartOAuthHandshake",
+        "codestar-connections:UseConnection"
+      ],
+      "Resource": "arn:aws:codestar-connections:*:*:connection/*"
+    },
+    {
+      "Sid": "CodeStarNotificationsReadWriteAccess",
+      "Effect": "Allow",
+      "Action": [
+        "codestar-notifications:CreateNotificationRule",
+        "codestar-notifications:DescribeNotificationRule",
+        "codestar-notifications:UpdateNotificationRule",
+        "codestar-notifications:DeleteNotificationRule",
+        "codestar-notifications:Subscribe",
+        "codestar-notifications:Unsubscribe"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringLike": {
+          "codestar-notifications:NotificationsForResource": "arn:aws:codebuild:*"
         }
-    ]
+      }
+    },
+    {
+      "Sid": "CodeStarNotificationsListAccess",
+      "Effect": "Allow",
+      "Action": [
+        "codestar-notifications:ListNotificationRules",
+        "codestar-notifications:ListEventTypes",
+        "codestar-notifications:ListTargets",
+        "codestar-notifications:ListTagsforResource"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CodeStarNotificationsSNSTopicCreateAccess",
+      "Effect": "Allow",
+      "Action": [
+        "sns:CreateTopic",
+        "sns:SetTopicAttributes"
+      ],
+      "Resource": "arn:aws:sns:*:*:codestar-notifications*"
+    },
+    {
+      "Sid": "SNSTopicListAccess",
+      "Effect": "Allow",
+      "Action": [
+        "sns:ListTopics",
+        "sns:GetTopicAttributes"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CodeStarNotificationsChatbotAccess",
+      "Effect": "Allow",
+      "Action": [
+        "chatbot:DescribeSlackChannelConfigurations"
+      ],
+      "Resource": "*"
+    }
+  ]
 }
