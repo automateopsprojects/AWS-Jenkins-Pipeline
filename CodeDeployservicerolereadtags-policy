@@ -2,8 +2,58 @@
     "Version": "2012-10-17",
     "Statement": [
         {
+            "Sid": "EC2DescribeInstances",
             "Effect": "Allow",
-            "Action": "ec2:DescribeTags",
+            "Action": "ec2:DescribeInstances",
+            "Resource": "*"
+        },
+        {
+            "Sid": "AutoScalingFullAccess",
+            "Effect": "Allow",
+            "Action": "autoscaling:*",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "autoscaling:CompleteLifecycleAction",
+                "autoscaling:DeleteLifecycleHook",
+                "autoscaling:DescribeAutoScalingGroups",
+                "autoscaling:DescribeLifecycleHooks",
+                "autoscaling:PutLifecycleHook",
+                "autoscaling:RecordLifecycleActionHeartbeat",
+                "autoscaling:CreateAutoScalingGroup",
+                "autoscaling:CreateOrUpdateTags",
+                "autoscaling:UpdateAutoScalingGroup",
+                "autoscaling:EnableMetricsCollection",
+                "autoscaling:DescribePolicies",
+                "autoscaling:DescribeScheduledActions",
+                "autoscaling:DescribeNotificationConfigurations",
+                "autoscaling:SuspendProcesses",
+                "autoscaling:ResumeProcesses",
+                "autoscaling:AttachLoadBalancers",
+                "autoscaling:AttachLoadBalancerTargetGroups",
+                "autoscaling:PutScalingPolicy",
+                "autoscaling:PutScheduledUpdateGroupAction",
+                "autoscaling:PutNotificationConfiguration",
+                "autoscaling:PutWarmPool",
+                "autoscaling:DescribeScalingActivities",
+                "autoscaling:DeleteAutoScalingGroup",
+                "ec2:DescribeInstanceStatus",
+                "ec2:TerminateInstances",
+                "tag:GetResources",
+                "sns:Publish",
+                "cloudwatch:DescribeAlarms",
+                "cloudwatch:PutMetricAlarm",
+                "elasticloadbalancing:DescribeLoadBalancers",
+                "elasticloadbalancing:DescribeInstanceHealth",
+                "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+                "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+                "elasticloadbalancing:DescribeTargetGroups",
+                "elasticloadbalancing:DescribeTargetHealth",
+                "elasticloadbalancing:RegisterTargets",
+                "elasticloadbalancing:DeregisterTargets"
+            ],
             "Resource": "*"
         }
     ]
