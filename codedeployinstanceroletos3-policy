@@ -4,13 +4,98 @@
         {
             "Effect": "Allow",
             "Action": [
-                "s3:PutObject",
-                "codedeploy:CreateDeployment"
+                "s3:Get*",
+                "s3:List*"
             ],
-            "Resource": [
-                "arn:aws:s3:::your-s3-code-github-artifact-codebuild/*",
-                "arn:aws:codedeploy:region:account-id:deploymentgroup:*"
-            ]
+            "Resource": "arn:aws:s3:::aws-jenkins-code/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloudwatch:PutMetricData",
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "codedeploy:CreateDeployment",
+                "codedeploy:GetDeployment",
+                "codedeploy:GetDeploymentConfig",
+                "codedeploy:RegisterApplicationRevision"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:DescribeInstances",
+                "ec2:DescribeInstanceStatus",
+                "ec2:GetConsoleScreenshot"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Action": "codedeploy:*",
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Sid": "CodeStarNotificationsReadWriteAccess",
+            "Effect": "Allow",
+            "Action": [
+                "codestar-notifications:CreateNotificationRule",
+                "codestar-notifications:DescribeNotificationRule",
+                "codestar-notifications:UpdateNotificationRule",
+                "codestar-notifications:DeleteNotificationRule",
+                "codestar-notifications:Subscribe",
+                "codestar-notifications:Unsubscribe"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "StringLike": {
+                    "codestar-notifications:NotificationsForResource": "arn:aws:codedeploy:*"
+                }
+            }
+        },
+        {
+            "Sid": "CodeStarNotificationsListAccess",
+            "Effect": "Allow",
+            "Action": [
+                "codestar-notifications:ListNotificationRules",
+                "codestar-notifications:ListTargets",
+                "codestar-notifications:ListTagsforResource",
+                "codestar-notifications:ListEventTypes"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "CodeStarNotificationsSNSTopicCreateAccess",
+            "Effect": "Allow",
+            "Action": [
+                "sns:CreateTopic",
+                "sns:SetTopicAttributes"
+            ],
+            "Resource": "arn:aws:sns:*:*:codestar-notifications*"
+        },
+        {
+            "Sid": "CodeStarNotificationsChatbotAccess",
+            "Effect": "Allow",
+            "Action": [
+                "chatbot:DescribeSlackChannelConfigurations"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "SNSTopicListAccess",
+            "Effect": "Allow",
+            "Action": [
+                "sns:ListTopics"
+            ],
+            "Resource": "*"
         }
     ]
 }
